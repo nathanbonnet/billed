@@ -19,7 +19,8 @@ export default class NewBill {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
-    this.firestore
+    if (["jpg", "png", "jpeg"].some(element => fileName.includes(element))) {
+      this.firestore
       .storage
       .ref(`justificatifs/${fileName}`)
       .put(file)
@@ -28,10 +29,12 @@ export default class NewBill {
         this.fileUrl = url
         this.fileName = fileName
       })
+    }else {
+      alert("extension non autorisé (jpg, jpeg, png)")
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,

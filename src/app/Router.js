@@ -14,7 +14,6 @@ export default () => {
   rootDiv.innerHTML = ROUTES({ pathname: window.location.pathname })
 
   window.onNavigate = (pathname) => {
-
     window.history.pushState(
       {},
       pathname,
@@ -70,7 +69,7 @@ export default () => {
       onNavigate(PREVIOUS_LOCATION)
     }
   }
-
+  console.log(window.location)
   if (window.location.pathname === "/" && window.location.hash === "") {
     new Login({ document, localStorage, onNavigate, PREVIOUS_LOCATION, firestore })
     document.body.style.backgroundColor="#0E5AE5"
