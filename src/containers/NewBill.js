@@ -17,9 +17,10 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
+    const filePath = file.name.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     if (["jpg", "png", "jpeg"].some(element => fileName.includes(element))) {
+      console.log(this.firestore);
       this.firestore
       .storage
       .ref(`justificatifs/${fileName}`)

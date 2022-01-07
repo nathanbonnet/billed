@@ -6,32 +6,11 @@ import { localStorageMock } from '../__mocks__/localStorage';
 import firebase from '../__mocks__/firebase';
 import { ROUTES } from '../constants/routes';
 import BillsUI from '../views/BillsUI';
+
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
-    test("when a new bill is created", () => {
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
+    describe('uploade new file', () => {
 
-      window.localStorage.setItem('user', JSON.stringify({
-        email: 'toto@toto.fr'
-      }))
-
-      const html = NewBillUI();
-      document.body.innerHTML = html;
-
-      const newBill = new NewBill({ 
-        document, onNavigate, firestore: null, localStorage: window.localStorage
-      })
-      
-      const handleSubmit = jest.fn(newBill.handleSubmit);
-      const formNewBill = document.querySelector(`form[data-testid="form-new-bill"]`)
-      formNewBill.addEventListener('submit', handleSubmit);
-      fireEvent.submit(formNewBill)
-      expect(handleSubmit).toHaveBeenCalled()
-      // expect(screen.getAllByText('Mes notes de frais')).toBeTruthy()       
-    })
-    test.skip("when an image is added to the form", async (done) => {
       const snapshot = {
         ref: {
           getDownloadURL: () => 'https://url.test'
@@ -42,61 +21,96 @@ describe("Given I am connected as an employee", () => {
         ref() { return this }
         async put() { return snapshot }
       }
-
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({ pathname })
-      }
-      const html = '<form data-testid="form-new-bill"><input required type="file" class="form-control blue-border" data-testid="file" /></form>'
+      
+      const html = NewBillUI();
       document.body.innerHTML = html;
 
-      const file = new File(['file'], 'file.png', { type: 'image/png' })
-      const fileGif = new File(['file'], 'file.gif', { type: 'image/gif'})
+      jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES({pathname})
+      }
 
       const newBill = new NewBill({ 
-        document, onNavigate, firestore: {storage: new Storage()}, localStorage: window.localStorage
+        document, onNavigate, firestore: {storage: new Storage()}, localStorage: window.localStorage 
       })
 
       const fileInput = document.querySelector(`input[data-testid="file"]`)
-      fileInput.addEventListener('change', handleChangeFile)
-      userEvent.upload(fileInput, file)
-      expect(handleChangeFile).toHaveBeenCalled()
-      expect(fileInput.files[0].name).toBe(file.name)
+      const handleChangeFile = jest.fn(newBill.handleChangeFile);
+      fileInput.addEventListener('change', handleChangeFile);
+    	
+    	test('When I choose a file in a correct format to upload, the file should be loaded and handled', () => {
+        	const fileTrue = new File(['testFile'], 'testFile.jpg', {type: 'image/jpg'})
 
-      // fileInput.addEventListener('change', handleChangeFile)
-      // userEvent.upload(fileInput, fileGif)
-      // expect(handleChangeFile).toThrowError("extension non autorisé (jpg, jpeg, png)")
+          userEvent.upload(fileInput, fileTrue);
+          expect(handleChangeFile).toHaveBeenCalled();
+          expect(fileInput.files[0]).toStrictEqual(fileTrue);
+          expect(fileInput.files).toHaveLength(1);
+          expect(window.alert).not.toHaveBeenCalled();
+    	})
+
+    	test('When I choose a new file in an incorrect format, there should be an alert', () => {
+
+        	const fileFalse = new File(['testFile'], 'testFile.txt', {type: 'text/txt'})
+
+          userEvent.upload(fileInput, fileFalse);
+          expect(handleChangeFile).toHaveBeenCalled();
+          expect(fileInput.files[0]).toStrictEqual(fileFalse);
+          expect(fileInput.files).toHaveLength(1);
+          expect(window.alert).toHaveBeenCalled();
+        })
+  	})
+    describe('when a new bill is created', () => {
+      test("if the form is correct", () => {
+  
+        window.localStorage.setItem('user', JSON.stringify({
+          email: 'toto@toto.fr'
+        }))
+  
+        const html = NewBillUI();
+        document.body.innerHTML = html;
+        const onNavigate = jest.fn();
+        const newBill = new NewBill({
+          document, onNavigate, firestore: null, localStorage: window.localStorage
+        })
+  
+        const handleSubmit = jest.fn(newBill.handleSubmit);
+        const formNewBill = document.querySelector(`form[data-testid="form-new-bill"]`)
+        formNewBill.addEventListener('submit', handleSubmit);
+        fireEvent.submit(formNewBill)
+        expect(handleSubmit).toHaveBeenCalled()
+      })
     })
   })
 })
 
-
-// test d'intégration GET
-// describe("Given I am a user connected as employée", () => {
-//   describe("When I create a new bill", () => {
-//     test("fetches bills from mock API GET", async () => {
-//        const getSpy = jest.spyOn(firebase, "get")
-//        const bills = await firebase.get()
-//        console.log(bills.data)
-//        expect(getSpy).toHaveBeenCalledTimes(1)
-//        expect(bills.data.length).toBe(4)
-//     })
-//     test("fetches bills from an API and fails with 404 message error", async () => {
-//       firebase.get.mockImplementationOnce(() =>
-//         Promise.reject(new Error("Erreur 404"))
-//       )
-//       const html = DashboardUI({ error: "Erreur 404" })
-//       document.body.innerHTML = html
-//       const message = await screen.getByText(/Erreur 404/)
-//       expect(message).toBeTruthy()
-//     })
-//     test("fetches messages from an API and fails with 500 message error", async () => {
-//       firebase.get.mockImplementationOnce(() =>
-//         Promise.reject(new Error("Erreur 500"))
-//       )
-//       const html = DashboardUI({ error: "Erreur 500" })
-//       document.body.innerHTML = html
-//       const message = await screen.getByText(/Erreur 500/)
-//       expect(message).toBeTruthy()
-//     })
-//   })
-// })
+// // test d'intégration GET
+// // describe("Given I am a user connected as employée", () => {
+// //   describe("When I create a new bill", () => {
+// //     test("fetches bills from mock API GET", async () => {
+// //        const getSpy = jest.spyOn(firebase, "get")
+// //        const bills = await firebase.get()
+// //        console.log(bills.data)
+// //        expect(getSpy).toHaveBeenCalledTimes(1)
+// //        expect(bills.data.length).toBe(4)
+// //     })
+// //     test("fetches bills from an API and fails with 404 message error", async () => {
+// //       firebase.get.mockImplementationOnce(() =>
+// //         Promise.reject(new Error("Erreur 404"))
+// //       )
+// //       const html = DashboardUI({ error: "Erreur 404" })
+// //       document.body.innerHTML = html
+// //       const message = await screen.getByText(/Erreur 404/)
+// //       expect(message).toBeTruthy()
+// //     })
+// //     test("fetches messages from an API and fails with 500 message error", async () => {
+// //       firebase.get.mockImplementationOnce(() =>
+// //         Promise.reject(new Error("Erreur 500"))
+// //       )
+// //       const html = DashboardUI({ error: "Erreur 500" })
+// //       document.body.innerHTML = html
+// //       const message = await screen.getByText(/Erreur 500/)
+// //       expect(message).toBeTruthy()
+// //     })
+// //   })
+// // })
