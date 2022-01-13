@@ -46,6 +46,7 @@ describe("Given I am connected as an employee", () => {
           expect(handleChangeFile).toHaveBeenCalled();
           expect(fileInput.files[0]).toStrictEqual(fileTrue);
           expect(fileInput.files).toHaveLength(1);
+          expect(fileInput.files[0].name).toEqual('testFile.jpg')
           expect(window.alert).not.toHaveBeenCalled();
     	})
 
@@ -84,33 +85,32 @@ describe("Given I am connected as an employee", () => {
   })
 })
 
-// // test d'intégration GET
-// // describe("Given I am a user connected as employée", () => {
-// //   describe("When I create a new bill", () => {
-// //     test("fetches bills from mock API GET", async () => {
-// //        const getSpy = jest.spyOn(firebase, "get")
-// //        const bills = await firebase.get()
-// //        console.log(bills.data)
-// //        expect(getSpy).toHaveBeenCalledTimes(1)
-// //        expect(bills.data.length).toBe(4)
-// //     })
-// //     test("fetches bills from an API and fails with 404 message error", async () => {
-// //       firebase.get.mockImplementationOnce(() =>
-// //         Promise.reject(new Error("Erreur 404"))
-// //       )
-// //       const html = DashboardUI({ error: "Erreur 404" })
-// //       document.body.innerHTML = html
-// //       const message = await screen.getByText(/Erreur 404/)
-// //       expect(message).toBeTruthy()
-// //     })
-// //     test("fetches messages from an API and fails with 500 message error", async () => {
-// //       firebase.get.mockImplementationOnce(() =>
-// //         Promise.reject(new Error("Erreur 500"))
-// //       )
-// //       const html = DashboardUI({ error: "Erreur 500" })
-// //       document.body.innerHTML = html
-// //       const message = await screen.getByText(/Erreur 500/)
-// //       expect(message).toBeTruthy()
-// //     })
-// //   })
-// // })
+// test d'intégration GET
+describe("Given I am a user connected as Admin", () => {
+  describe("When I navigate to Bills", () => {
+    test("fetches bills from mock API GET", async () => {
+       const getSpy = jest.spyOn(firebase, "post")
+       const bills = await firebase.post()
+       expect(getSpy).toHaveBeenCalledTimes(1)
+       expect(bills.data.length).toBe(1)
+    })
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      firebase.post.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 404"))
+      )
+      const html = BillsUI({ error: "Erreur 404" })
+      document.body.innerHTML = html
+      const message = await screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
+    })
+    test("fetches messages from an API and fails with 500 message error", async () => {
+      firebase.post.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 500"))
+      )
+      const html = BillsUI({ error: "Erreur 500" })
+      document.body.innerHTML = html
+      const message = await screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
+    })
+  })
+})

@@ -53,8 +53,8 @@ describe("Given I am connected as an employee", () => {
 
       const buttonNewBill = document.querySelector(`button[data-testid="btn-new-bill"]`)
       expect(buttonNewBill).toBeTruthy()
-    
-      bill.handleClickNewBill()
+
+      bill.handleClickNewBill();
       const title = document.querySelector('.content-title')
       expect(title.innerHTML).toEqual(' Envoyer une note de frais ')
     })
@@ -82,32 +82,80 @@ describe("Given I am connected as an employee", () => {
   })
 })
 
-// const html = DashboardFormUI(bills[0])
-//       document.body.innerHTML = html
-//       const onNavigate = (pathname) => {
-//         document.body.innerHTML = ROUTES({ pathname })
-//       }
-//       const firestore = null
-//       const dashboard = new Dashboard({
-//         document, onNavigate, firestore, bills, localStorage: window.localStorage
-//       })
+// // test d'intégration GET
+// describe("When I navigate to Bills", () => {
+//   const getRequest = jest
+//     .fn(firebase.get)
+//     .mockImplementationOnce(firebase.get)
+//     .mockImplementationOnce(() => Promise.reject(new Error('Erreur 404')))
+//     .mockImplementationOnce(() => Promise.reject(new Error('Erreur 500')))
 
-//       const handleClickIconEye = jest.fn(dashboard.handleClickIconEye)
-//       const eye = screen.getByTestId('icon-eye-d')
-//       eye.addEventListener('click', handleClickIconEye)
-//       userEvent.click(eye)
-//       expect(handleClickIconEye).toHaveBeenCalled()
+//   test("fetches bills from mock API GET", async () => {
+//     const bills = await getRequest()
+//     const { data } = bills
 
-//       const modale = screen.getByTestId('modaleFileAdmin')
-//       expect(modale).toBeTruthy()
+//     expect(getRequest).toHaveBeenCalledTimes(1)
+//     expect(data.length).toBe(4)
+//   })
 
+//   test("fetches bills from an API and fails with 404 message error", async () => {
+//     let response
+
+//     try {
+//       response = await getRequest()
+//     } catch (e) {
+//       response = {error: e}
+//     }
+
+//     document.body.innerHTML = BillsUI(response)
+
+//     expect(getRequest).toHaveBeenCalledTimes(2)
+//     expect(screen.getByText(/Erreur 404/)).toBeTruthy()
+//   })
+
+//   test("fetches bills from an API and fails with 500 message error", async () => {
+//     let response
+
+//     try {
+//       response = await getRequest()
+//     } catch (e) {
+//       response = {error: e}
+//     }
+
+//     document.body.innerHTML = BillsUI(response)
+
+//     expect(getRequest).toHaveBeenCalledTimes(3)
+//     expect(screen.getByText(/Erreur 500/)).toBeTruthy()
+//   })
+// })
 
 // test d'intégration GET
-// describe("Given I am a user connected as Admin", () => {
-//   test("fetches bills from mock API GET", async () => {
-//     const getSpy = jest.spyOn(firebase, "get")
-//     const bills = await firebase.get()
-//     expect(getSpy).toHaveBeenCalledTimes(1)
-//     expect(bills.data.length).toBe(4)
-//  })
-// })
+describe("Given I am a user connected as Admin", () => {
+  describe("When I navigate to Bills", () => {
+    test("fetches bills from mock API GET", async () => {
+       const getSpy = jest.spyOn(firebase, "get")
+       const bills = await firebase.get()
+       expect(getSpy).toHaveBeenCalledTimes(1)
+       expect(bills.data.length).toBe(4)
+    })
+    test("fetches bills from an API and fails with 404 message error", async () => {
+      firebase.get.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 404"))
+      )
+      const html = BillsUI({ error: "Erreur 404" })
+      document.body.innerHTML = html
+      const message = await screen.getByText(/Erreur 404/)
+      expect(message).toBeTruthy()
+    })
+    test("fetches messages from an API and fails with 500 message error", async () => {
+      firebase.get.mockImplementationOnce(() =>
+        Promise.reject(new Error("Erreur 500"))
+      )
+      const html = BillsUI({ error: "Erreur 500" })
+      document.body.innerHTML = html
+      const message = await screen.getByText(/Erreur 500/)
+      expect(message).toBeTruthy()
+    })
+  })
+})
+

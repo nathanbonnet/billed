@@ -61,7 +61,7 @@ describe("Given that I am a user on login page", () => {
     expect(inputPasswordUser.value).toBe(inputData.password)
 
     const form = screen.getByTestId("form-employee")
-    
+
     // localStorage should be populated with form data
     Object.defineProperty(window, "localStorage", {
       value: {
@@ -72,6 +72,7 @@ describe("Given that I am a user on login page", () => {
     })
 
     // we have to mock navigation to test it
+    
     const onNavigate = (pathname) => {
       document.body.innerHTML = ROUTES({ pathname })
     }
