@@ -19,13 +19,8 @@ describe("Given I am connected as an employee", () => {
 
     beforeEach(() => {
       document.body.innerHTML = BillsUI({ data: bills })
-
-      Object.defineProperty(window, 'localStorage', { value: localStorageMock })
-      window.localStorage.setItem('user', JSON.stringify({
-        type: 'Employee'
-      }))
     })
-
+    
     test("check that if no bill is created the page is displayed", () => {
       const html = BillsUI({ data: []})
       expect(html).toBeTruthy();
@@ -61,22 +56,22 @@ describe("Given I am connected as an employee", () => {
 
     describe("When I click on the icon eye of a bill", () => {
       test("the modal is open", () => {
-          let show = "";
-          $.fn.modal = jest.fn(modalValue => {
-            show = modalValue
-          });
+        let show = "";
+        $.fn.modal = jest.fn(modalValue => {
+          show = modalValue
+        });
 
-          const bills = new Bills({
-            document, onNavigate, firestore: null, localStorage: window.localStorage
-          })
-  
-          const handleClickIconEye = jest.fn(bills.handleClickIconEye)
-          const eye = screen.getAllByTestId('icon-eye')[0]
-          eye.addEventListener('click', handleClickIconEye(eye))
-          userEvent.click(eye)
+        const bills = new Bills({
+          document, firestore: null, localStorage: window.localStorage
+        })
 
-          expect(handleClickIconEye).toHaveBeenCalled()
-          expect(show).toEqual("show");
+        const handleClickIconEye = jest.fn(bills.handleClickIconEye)
+        const eye = screen.getAllByTestId('icon-eye')[0]
+        eye.addEventListener('click', handleClickIconEye(eye))
+        userEvent.click(eye)
+
+        expect(handleClickIconEye).toHaveBeenCalled()
+        expect(show).toEqual("show");
       })
     })
   })

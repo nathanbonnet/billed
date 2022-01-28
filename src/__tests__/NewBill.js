@@ -27,12 +27,8 @@ describe("Given I am connected as an employee", () => {
 
       jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-      const onNavigate = (pathname) => {
-        document.body.innerHTML = ROUTES({pathname})
-      }
-
       const newBill = new NewBill({ 
-        document, onNavigate, firestore: {storage: new Storage()}, localStorage: window.localStorage 
+        document, firestore: {storage: new Storage()}
       })
 
       const fileInput = document.querySelector(`input[data-testid="file"]`)
@@ -70,10 +66,8 @@ describe("Given I am connected as an employee", () => {
   
         const html = NewBillUI();
         document.body.innerHTML = html;
-        const onNavigate = jest.fn();
-        const newBill = new NewBill({
-          document, onNavigate, firestore: null, localStorage: window.localStorage
-        })
+        
+        const newBill = new NewBill({ document })
   
         const handleSubmit = jest.fn(newBill.handleSubmit);
         const formNewBill = document.querySelector(`form[data-testid="form-new-bill"]`)
